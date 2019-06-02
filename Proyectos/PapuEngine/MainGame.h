@@ -38,7 +38,6 @@ private:
 	vector<Level*> levels;
 	vector<Zombie*> zombies;
 	vector<Human*> humans;
-	vector<img*> imgs;
 	void updateElements();
 	int currentLevel;
 	void initLevel();

@@ -14,7 +14,7 @@ Level::Level(const string &fileName)
 
 	string tmp;
 	file >> tmp >> numHumans;
-
+	//numZombies = numHumans - 100;
 	getline(file, tmp);
 	while (getline(file, tmp)) {
 		levelData.push_back(tmp);
@@ -66,6 +66,10 @@ void Level::parseLevel() {
 				break;
 			case 'Z':
 				levelData[i][j] = '.';
+				zombiePosition.x = j* TILE_WIDTH;
+				zombiePosition.y = i* TILE_WIDTH;
+				zombiesPosition.push_back(zombiePosition);
+				numZombies ++;
 				break;
 			case '.':
 				break;

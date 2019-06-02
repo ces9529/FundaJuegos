@@ -10,7 +10,6 @@ using namespace std;
 
 void MainGame::run() {
 	init();
-
 	update();
 }
 
@@ -30,6 +29,7 @@ void MainGame::initLevel() {
 			levels[currentLevel]->getPlayerPosition(),
 		&inputManager);
 
+	//******************RANDOM**********************//
 	std::mt19937 randomEngine(time(nullptr));
 	std::uniform_int_distribution<int> randomX(
 		1, levels[currentLevel]->getWidth() - 2
@@ -37,6 +37,7 @@ void MainGame::initLevel() {
 	std::uniform_int_distribution<int> randomY(
 		1, levels[currentLevel]->getHeight() - 2
 	);
+	//**********************************************//
 
 	for (int i = 0; i < 
 			levels[currentLevel]->getNumHumans(); i++)
@@ -45,9 +46,13 @@ void MainGame::initLevel() {
 		glm::vec2 pos(randomX(randomEngine)*TILE_WIDTH,
 			randomY(randomEngine)*TILE_WIDTH);
 		humans.back()->init(10.0f, pos);
-
 	}
-	
+	for (int i = 0; i < 
+		levels[currentLevel]->getNumZombies(); i++) 
+	{
+		zombies.push_back(new Zombie());
+		zombies.back()->init(10.0f,levels[currentLevel]->getZombiesPosition()[i]);
+	}
 }
 
 void MainGame::initShaders() {
@@ -58,9 +63,6 @@ void MainGame::initShaders() {
 	_program.addAtribute("vertexUV");
 	_program.linkShader();
 }
-
-
-
 
 void MainGame::draw() {
 	glClearDepth(1.0);
@@ -87,40 +89,15 @@ void MainGame::draw() {
 	spritebatch.begin();
 	levels[currentLevel]->draw();
 	player->draw(spritebatch);
-
-	/*
-	string dir = "Textures/keen.png"; 
-	if (inputManager.isKeyPressed(SDLK_o)) {
-	player->drawimage(spritebatch, dir);
-	}*/
-	/*
-	string dir = "Textures/keen.png";
-	if (inputManager.isKeyPressed(SDLK_o)) {
-		std::mt19937 randomEngine(time(nullptr));
-		std::uniform_int_distribution<int> randomX(
-			1, levels[currentLevel]->getWidth() - 2
-		);
-		std::uniform_int_distribution<int> randomY(
-			1, levels[currentLevel]->getHeight() - 2
-		);
-
-		glm::vec2 pos(randomX(randomEngine)*TILE_WIDTH,
-			randomY(randomEngine)*TILE_WIDTH);
-		imgs->init(pos);
-	}*/
-	//imgs->drawimage(spritebatch, dir);
+	
 	for (size_t i = 0; i < humans.size(); i++)
 	{
 		humans[i]->draw(spritebatch);
 	}
-	/*
-		for (size_t i = 0; i < imgs.size(); i++)
-		{
-			imgs[i]->drawimage(spritebatch, imgs[i]->getDir());
-		}*/
-	for (int i = 0; i < _sprites.size(); i++)
+	
+	for (size_t i = 0; i < zombies.size(); i++)
 	{
-		_sprites[i]->draw();
+		zombies[i]->draw(spritebatch);
 	}
 	spritebatch.end();
 	spritebatch.renderBatch();
@@ -184,51 +161,6 @@ void MainGame::handleInput()
 	if (inputManager.isKeyPressed(SDLK_e)) {
 		_camera.setScale(_camera.getScale() - SCALE_SPEED);
 	}
-
-	if (inputManager.isKeyPressed(SDLK_o)) {
-		std::mt19937 randomEngine(time(nullptr));
-		std::uniform_int_distribution<int> randomX(
-			1, levels[currentLevel]->getWidth() - 2
-		);
-		std::uniform_int_distribution<int> randomY(
-			1, levels[currentLevel]->getHeight() - 2
-		);
-		_sprites.push_back(new Sprite());
-		_sprites.back()->init(randomX(randomEngine)*TILE_WIDTH, randomY(randomEngine)*TILE_WIDTH, _witdh / 2, _witdh / 2, "Textures/zero.png");
-	}
-	if (inputManager.isKeyPressed(SDLK_i)) {
-		std::mt19937 randomEngine(time(nullptr));
-		std::uniform_int_distribution<int> randomX(
-			1, levels[currentLevel]->getWidth() - 2
-		);
-		std::uniform_int_distribution<int> randomY(
-			1, levels[currentLevel]->getHeight() - 2
-		);
-		_sprites.push_back(new Sprite());
-		_sprites.back()->init(randomX(randomEngine)*TILE_WIDTH, randomY(randomEngine)*TILE_WIDTH, _witdh / 2, _witdh / 2, "Textures/keen.png");
-	}
-	if (inputManager.isKeyPressed(SDLK_u)) {
-		std::mt19937 randomEngine(time(nullptr));
-		std::uniform_int_distribution<int> randomX(
-			1, levels[currentLevel]->getWidth() - 2
-		);
-		std::uniform_int_distribution<int> randomY(
-			1, levels[currentLevel]->getHeight() - 2
-		);
-		_sprites.push_back(new Sprite());
-		_sprites.back()->init(randomX(randomEngine)*TILE_WIDTH, randomY(randomEngine)*TILE_WIDTH, _witdh / 2, _witdh / 2, "Textures/stone.png");
-	}
-	if (inputManager.isKeyPressed(SDLK_p)) {
-		std::mt19937 randomEngine(time(nullptr));
-		std::uniform_int_distribution<int> randomX(
-			1, levels[currentLevel]->getWidth() - 2
-		);
-		std::uniform_int_distribution<int> randomY(
-			1, levels[currentLevel]->getHeight() - 2
-		);
-		_sprites.push_back(new Sprite());
-		_sprites.back()->init(randomX(randomEngine)*TILE_WIDTH, randomY(randomEngine)*TILE_WIDTH, _witdh / 2, _witdh / 2, "Textures/mega.png");
-	}
 }
 
 void MainGame::update() {
@@ -242,14 +174,20 @@ void MainGame::update() {
 		updateElements();
 	}
 }
-
+//
 void MainGame::updateElements() {
 	player->update(levels[currentLevel]->getLevelData(),
 		humans, zombies);
-
+	
 	for (size_t i = 0; i < humans.size(); i++)
 	{
 		humans[i]->update(levels[currentLevel]->getLevelData(),
+			humans, zombies);
+	}
+	
+	for (size_t i = 0; i < zombies.size(); i++)
+	{
+		zombies[i]->update(levels[currentLevel]->getLevelData(),
 			humans, zombies);
 	}
 }
