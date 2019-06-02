@@ -16,6 +16,8 @@ void Agent::draw(SpriteBatch& spritebatch) {
 	spritebatch.draw(destRect, uvRect, textureID, 0.0f, color);
 }
 
+
+
 bool Agent::collideWithLevel(const std::vector<std::string>& levelData) {
 	std::vector<glm::vec2> collideTilePosition;
 	checkTilePosition(levelData, collideTilePosition, position.x, position.y);
