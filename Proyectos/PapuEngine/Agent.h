@@ -5,8 +5,10 @@
 
 class Zombie;
 class Human;
+class img;
 
 const float AGENT_WIDTH = 60.0f;
+const float AGENT_WIDTH2 = 300.0f;
 const float AGENT_RADIUS = AGENT_WIDTH / 2.0f;
 
 class Agent
@@ -26,7 +28,7 @@ public:
 	virtual void update(
 		const std::vector<std::string>& levelData,
 		std::vector<Human*>& humans,
-		std::vector<Zombie*>& zombies) =0;
+		std::vector<Zombie*>& zombies) =0;//?
 	void draw(SpriteBatch& spritebatch);
 	bool collideWithLevel(const std::vector<std::string>& levelData);
 	Agent();
